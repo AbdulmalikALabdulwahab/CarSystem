@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Car Wash Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Washing Sessions</h1>
+    <table>
+      <tr>
+        <th>License Plate</th>
+        <th>Car Type</th>
+        <th>Car Brand</th>
+        <th>Car Model</th>
+        <th>Car Color</th>
+        <th>Client Name</th>
+        <th>Client Phone</th>
+        <th>Status</th>
+        <th>Parking Slot</th>
+        <th>Action</th>
+      </tr>
+      {% for session in sessions %}
+      <tr>
+        <td>{{ session['license_plate'] }}</td>
+        <td>{{ session['car_type'] }}</td>
+        <td>{{ session['car_brand'] }}</td>
+        <td>{{ session['car_model'] }}</td>
+        <td>{{ session['car_color'] }}</td>
+        <td>{{ session['client_name'] }}</td>
+        <td>{{ session['client_phone'] }}</td>
+        <td>
+          {% if session['status'] == 'waiting' %}
+          Waiting in Slot {{ session['parking_slot'] }}
+          {% elif session['status'] == 'washing' %}
+          Being Washed
+          {% else %}
+          Done
+          {% endif %}
+        </td>
+        <td>{{ session['parking_slot'] or '—' }}</td>
+        <td>
+          {% if session['status'] == 'waiting' %}
+          <form method="POST" action="/start/{{ session['id'] }}">
+            <button type="submit">Start Wash</button>
+          </form>
+          {% elif session['status'] == 'washing' %}
+          <form method="POST" action="/finish/{{ session['id'] }}">
+            <button type="submit">Finish</button>
+          </form>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="parking-lot">
+      <h2>Parking Slots</h2>
+      <div class="slots">
+        {% for slot in [1, 2, 3] %}
+        <div class="slot-box">
+          <h3>Slot {{ slot }}</h3>
+          {% set found = false %}
+          {% for s in sessions %}
+          {% if s['status'] == 'waiting' and s['parking_slot'] == slot %}
+          <p><strong>{{ s['license_plate'] }}</strong></p>
+          <p>{{ s['client_name'] }}</p>
+          <p>{{ s['client_phone'] }}</p>
+          {% set found = true %}
+          {% endif %}
+          {% endfor %}
+          {% if not found %}
+          <p class="empty">Empty</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="margin-top: 40px;">
+      <h1>Database View</h1>
+      <h3>washing_sessions Table</h3>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Car ID</th>
+          <th>Arrival Time</th>
+          <th>Washing Start</th>
+          <th>Washing End</th>
+          <th>Parking Slot</th>
+          <th>Status</th>
+        </tr>
+        {% for data in database %}
+        <tr>
+          <td>{{ data['id'] }}</td>
+          <td>{{ data['car_id'] }}</td>
+          <td>{{ data['arrival_time'] }}</td>
+          <td>{{ data['washing_start_time'] or '—' }}</td>
+          <td>{{ data['washing_end_time'] or '—' }}</td>
+          <td>{{ data['parking_slot'] or '—' }}</td>
+          <td>{{ data['status'] }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="center-link">
+      <a href="/">Register New Car</a>
+    </div>
+
+  </div>
+</body>
+
+</html>

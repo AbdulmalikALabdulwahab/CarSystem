@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Car Wash Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+  <div class="page-container">
+    <div class="container">
+      <h2>Clients</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for client in clients %}
+          <tr>
+            <td>{{ client['id'] }}</td>
+            <td>{{ client['client_name'] }}</td>
+            <td>{{ client['client_phone'] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Center: Form -->
+    <div class="form-container column">
+      <h1>Register Your Car</h1>
+      <form method="POST" action="/register">
+        <label for="client_name">Client Name</label>
+        <input type="text" id="client_name" name="client_name" required />
+
+        <label for="client_phone">Phone Number</label>
+        <input type="tel" id="client_phone" name="client_phone" required />
+
+        <label for="license_plate">License Plate</label>
+        <input type="text" id="license_plate" name="license_plate" required />
+
+        <label for="car_type">Car Type</label>
+        <input type="text" id="car_type" name="car_type" required />
+
+        <label for="car_brand">Car Brand</label>
+        <input type="text" id="car_brand" name="car_brand" required />
+
+        <label for="car_model">Car Model</label>
+        <input type="text" id="car_model" name="car_model" required />
+
+        <label for="car_year">Car Year</label>
+        <input type="number" id="car_year" name="car_year" required />
+
+        <label for="car_color">Car Color</label>
+        <input type="text" id="car_color" name="car_color" required />
+
+        <button type="submit">Register Car</button>
+      </form>
+
+      <div class="link">
+        <p><a href="/dashboard">Go to Dashboard</a></p>
+        <p><a href="/management">Go to Management</a></p>
+      </div>
+    </div>
+
+    <!-- Right: Cars Table -->
+    <div class="container">
+      <h2>Cars</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>License Plate</th>
+            <th>Car Type</th>
+            <th>Car Brand</th>
+            <th>Car Model</th>
+            <th>Car Year</th>
+            <th>Car Color</th>
+            <th>Client ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for car in cars %}
+          <tr>
+            <td>{{ car['id'] }}</td>
+            <td>{{ car['license_plate'] }}</td>
+            <td>{{ car['car_type'] }}</td>
+            <td>{{ car['car_brand'] }}</td>
+            <td>{{ car['car_model'] }}</td>
+            <td>{{ car['car_year'] }}</td>
+            <td>{{ car['car_color'] }}</td>
+            <td>{{ car['client_id'] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>
