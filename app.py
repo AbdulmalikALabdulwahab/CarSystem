@@ -101,7 +101,6 @@ def register():
 def dashboard():
     conn = get_db_connection()
 
-    # Join sessions with car & client info
     sessions = conn.execute('''
         SELECT ws.id, c.license_plate, c.car_type, c.car_brand, c.car_model, c.car_color,
                cl.client_name, cl.client_phone, ws.status, ws.parking_slot
@@ -111,7 +110,6 @@ def dashboard():
         ORDER BY ws.arrival_time ASC
     ''').fetchall()
 
-    # Get raw washing_sessions table
     database = conn.execute('SELECT * FROM washing_sessions').fetchall()
 
     conn.close()
@@ -146,27 +144,26 @@ def finish_washing(session_id):
     conn.close()
     return redirect('/dashboard')
 
-
+# -------- Management --------
 @app.route('/management')
 def management():
     conn = get_db_connection()
     clients = conn.execute('SELECT * FROM clients ORDER BY id DESC').fetchall()
+    cars = conn.execute('SELECT * FROM cars ORDER BY id DESC').fetchall()
     conn.close()
-    return render_template('management.html', clients=clients)
+    return render_template('management.html', clients=clients, cars=cars)
 
 @app.route('/management/add', methods=['GET', 'POST'])
 def add_client():
     if request.method == 'POST':
         client_name = request.form.get('client_name')
         client_phone = request.form.get('client_phone')
-
         conn = get_db_connection()
         conn.execute('INSERT INTO clients (client_name, client_phone) VALUES (?, ?)', (client_name, client_phone))
         conn.commit()
         conn.close()
         return redirect(url_for('management'))
     return render_template('add_client.html')
-
 
 @app.route('/management/edit/<int:id>', methods=['GET', 'POST'])
 def edit_client(id):
@@ -184,7 +181,6 @@ def edit_client(id):
     conn.close()
     return render_template('edit_client.html', client=client)
 
-
 @app.route('/management/delete/<int:id>', methods=['POST'])
 def delete_client(id):
     conn = get_db_connection()
@@ -193,6 +189,19 @@ def delete_client(id):
     conn.close()
     return redirect(url_for('management'))
 
+# -------- Clear All Data --------
+@app.route('/clear_all_data', methods=['POST'])
+def clear_all_data():
+    conn = get_db_connection()
+    conn.execute('DELETE FROM washing_sessions')
+    conn.execute('DELETE FROM cars')
+    conn.execute('DELETE FROM clients')
+    conn.execute('DELETE FROM sqlite_sequence WHERE name="cars"')
+    conn.execute('DELETE FROM sqlite_sequence WHERE name="clients"')
+    conn.execute('DELETE FROM sqlite_sequence WHERE name="washing_sessions"')
+    conn.commit()
+    conn.close()
+    return redirect(url_for('management'))
 
 # -------- Main --------
 if __name__ == '__main__':

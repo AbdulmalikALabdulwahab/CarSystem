@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <!--  -->
+
 <head>
   <meta charset="UTF-8">
   <title>Car Wash Dashboard</title>
@@ -10,7 +11,15 @@
 </head>
 
 <body>
-
+  <nav class="navbar">
+    <div class="nav-brand">Car Wash</div>
+    <button class="burger" id="burger">&#9776;</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/management">Management</a></li>
+      <li><a href="/">Register New Car</a></li>
+    </ul>
+  </nav>
   <div class="container">
 
     <h1>Washing Sessions</h1>
@@ -69,16 +78,16 @@
         {% for slot in [1, 2, 3] %}
         <div class="slot-box">
           <h3>Slot {{ slot }}</h3>
-          {% set found = false %}
+          {% set ns = namespace(found=false) %}
           {% for s in sessions %}
           {% if s['status'] == 'waiting' and s['parking_slot'] == slot %}
           <p><strong>{{ s['license_plate'] }}</strong></p>
           <p>{{ s['client_name'] }}</p>
           <p>{{ s['client_phone'] }}</p>
-          {% set found = true %}
+          {% set ns.found = true %}
           {% endif %}
           {% endfor %}
-          {% if not found %}
+          {% if not ns.found %}
           <p class="empty">Empty</p>
           {% endif %}
         </div>
@@ -87,8 +96,7 @@
     </div>
 
     <div style="margin-top: 40px;">
-      <h1>Database View</h1>
-      <h3>washing_sessions Table</h3>
+      <h3>Car Data</h3>
       <table>
         <tr>
           <th>ID</th>

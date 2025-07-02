@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--  -->
+
 <head>
   <meta charset="UTF-8" />
   <title>Car Wash Registration</title>
@@ -10,29 +10,17 @@
 </head>
 
 <body>
-  <div class="page-container">
-    <div class="container">
-      <h2>Clients</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Phone</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for client in clients %}
-          <tr>
-            <td>{{ client['id'] }}</td>
-            <td>{{ client['client_name'] }}</td>
-            <td>{{ client['client_phone'] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand">Car Wash</div>
+    <button class="burger" id="burger">&#9776;</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/management">Management</a></li>
+    </ul>
+  </nav>
 
+  <div class="page-container">
     <!-- Center: Form -->
     <div class="form-container column">
       <h1>Register Your Car</h1>
@@ -63,46 +51,16 @@
 
         <button type="submit">Register Car</button>
       </form>
-
-      <div class="link">
-        <p><a href="/dashboard">Go to Dashboard</a></p>
-        <p><a href="/management">Go to Management</a></p>
-      </div>
-    </div>
-
-    <!-- Right: Cars Table -->
-    <div class="container">
-      <h2>Cars</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>License Plate</th>
-            <th>Car Type</th>
-            <th>Car Brand</th>
-            <th>Car Model</th>
-            <th>Car Year</th>
-            <th>Car Color</th>
-            <th>Client ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for car in cars %}
-          <tr>
-            <td>{{ car['id'] }}</td>
-            <td>{{ car['license_plate'] }}</td>
-            <td>{{ car['car_type'] }}</td>
-            <td>{{ car['car_brand'] }}</td>
-            <td>{{ car['car_model'] }}</td>
-            <td>{{ car['car_year'] }}</td>
-            <td>{{ car['car_color'] }}</td>
-            <td>{{ car['client_id'] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     </div>
   </div>
+
+  <script>
+    // Toggle mobile nav
+    document.getElementById('burger').addEventListener('click', function () {
+      const navLinks = document.getElementById('nav-links');
+      navLinks.classList.toggle('active');
+    });
+  </script>
 </body>
 
 </html>

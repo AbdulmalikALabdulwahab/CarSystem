@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <!--  -->
+
 <head>
     <meta charset="UTF-8" />
     <title>Management Dashboard</title>
@@ -9,12 +10,30 @@
 </head>
 
 <body>
+
+    <nav class="navbar">
+        <div class="nav-brand">Car Wash</div>
+        <button class="burger" id="burger">&#9776;</button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/management">Management</a></li>
+            <li><a href="/">Register New Car</a></li>
+        </ul>
+    </nav>
     <div class="container">
         <h1>Management Dashboard</h1>
 
         <p class="link">
             <a href="{{ url_for('add_client') }}" class="button">Add New User</a>
         </p>
+        <!-- Clear All Data Button -->
+        <div class="center-link">
+            <form method="POST" action="{{ url_for('clear_all_data') }}"
+                onsubmit="return confirm('Are you sure you want to delete ALL clients, cars, and sessions?');">
+                <button type="submit" class="delete-btn">🗑️ Delete All Data</button>
+            </form>
+        </div>
+
 
         <table>
             <thead>
@@ -41,10 +60,60 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div class="link">
-            <p><a href="/dashboard">Go to Dashboard</a></p>
-            <p><a href="/">Go to Register</a></p>
+        <div class="container">
+            <h2>Clients</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>{{ client['id'] }}</td>
+                        <td>{{ client['client_name'] }}</td>
+                        <td>{{ client['client_phone'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        <!-- Right: Cars Table -->
+        <div class="container">
+            <h2>Cars</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>License Plate</th>
+                        <th>Car Type</th>
+                        <th>Car Brand</th>
+                        <th>Car Model</th>
+                        <th>Car Year</th>
+                        <th>Car Color</th>
+                        <th>Client ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in cars %}
+                    <tr>
+                        <td>{{ car['id'] }}</td>
+                        <td>{{ car['license_plate'] }}</td>
+                        <td>{{ car['car_type'] }}</td>
+                        <td>{{ car['car_brand'] }}</td>
+                        <td>{{ car['car_model'] }}</td>
+                        <td>{{ car['car_year'] }}</td>
+                        <td>{{ car['car_color'] }}</td>
+                        <td>{{ car['client_id'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </body>
 
