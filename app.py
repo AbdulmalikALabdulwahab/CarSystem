@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,jsonify
+import requests
 import sqlite3
 from datetime import datetime
 
@@ -202,6 +203,47 @@ def clear_all_data():
     conn.commit()
     conn.close()
     return redirect(url_for('management'))
+
+@app.route('/nearest_station')
+def get_nearest_stations():
+    user_lat = request.args.get('lat')
+    user_lon = request.args.get('lon')
+
+    # Handle missing coordinates
+    if not user_lat or not user_lon:
+        return render_template("nearest_station.html", stations=[], error="Location not provided")
+
+    try:
+        url = "https://nominatim.openstreetmap.org/search"
+        params = {
+            "format": "json",
+            "q": "car wash",
+            "lat": user_lat,
+            "lon": user_lon,
+            "limit": 10,
+            "addressdetails": 1
+        }
+        headers = {
+            "User-Agent": "CarWashSystem/1.0"
+        }
+
+        response = requests.get(url, params=params, headers=headers)
+
+        stations = []
+        if response.status_code == 200:
+            data = response.json()
+            for result in data:
+                stations.append({
+                    "name": result.get("display_name"),
+                    "latitude": result.get("lat"),
+                    "longitude": result.get("lon")
+                })
+
+        return render_template("nearest_station.html", stations=stations)
+
+    except Exception as e:
+        print(f"Error fetching stations: {e}")
+        return render_template("nearest_station.html", stations=stations, error="Error retrieving data.")
 
 # -------- Main --------
 if __name__ == '__main__':

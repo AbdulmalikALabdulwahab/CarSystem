@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Nearby Car Wash Stations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <style>
+    .card {
+      margin-bottom: 20px;
+    }
+
+    .map-image {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .station-card {
+      display: flex;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #7c3aed 0%, #6366f1 100%);
+      color: white;
+      padding: 1.2rem 2rem;
+      border-radius: 0 0 18px 18px;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 2px 12px rgba(80, 112, 255, 0.07);
+    }
+
+    .nav-brand {
+      font-size: 1.7rem;
+      font-weight: 800;
+    }
+
+    .burger {
+      font-size: 1.7rem;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 24px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .nav-links li a:hover {
+      background: #a5b4fc;
+      color: #232946;
+    }
+
+    @media (max-width: 768px) {
+      .burger {
+        display: block;
+      }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: linear-gradient(90deg, #7c3aed 0%, #6366f1 100%);
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0 0 18px 18px;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links li {
+        margin-bottom: 12px;
+      }
+
+      .nav-links li:last-child {
+        margin-bottom: 0;
+      }
+    }
+  </style>
+
+  {% if not request.args.get('lat') or not request.args.get('lon') %}
+  <script>
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        window.location.href = `/nearest_station?lat=${lat}&lon=${lon}`;
+      },
+      function () {
+        alert("We couldn't get your location. Please enable location access.");
+      }
+    );
+  </script>
+  {% endif %}
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">Car Wash</div>
+    <button class="burger" id="burger">&#9776;</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/management">Management</a></li>
+      <li><a href="/">Register New Car</a></li>
+    </ul>
+  </nav>
+
+  <!-- Content -->
+  <div class="container py-4">
+    <h1 class="mb-4 text-center">Nearby Car Wash Stations</h1>
+    <div class="row">
+      {% for station in stations %}
+      {% set lat = station.latitude %}
+      {% set lon = station.longitude %}
+      {% set name = station.name.split(',')[0] %}
+      {% set place = station.name.split(',')[1:] | join(', ') %}
+      {% set map_url = "https://staticmap.openstreetmap.de/staticmap.php?center=" ~ lat ~ "," ~ lon ~
+      "&zoom=14&size=400x200&markers=" ~ lat ~ "," ~ lon ~ ",red" %}
+      {% set gmaps_link = "https://www.google.com/maps/search/?api=1&query=" ~ lat ~ "," ~ lon %}
+
+      <div class="col-md-4 station-card">
+        <div class="card shadow-sm h-100">
+          <img src="{{ map_url }}" alt="Map of {{ name }}" class="map-image"
+            onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200?text=Map+Unavailable';">
+          <div class="card-body">
+            <h5 class="card-title">{{ name }}</h5>
+            <p class="card-text">{{ place }}</p>
+            <a href="{{ gmaps_link }}" target="_blank" class="btn btn-primary btn-sm">Open in Google Maps</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Burger Toggle Script -->
+  <script>
+    document.getElementById('burger').onclick = function () {
+      document.getElementById('nav-links').classList.toggle('active');
+    };
+  </script>
+
+</body>
+
+</html>
