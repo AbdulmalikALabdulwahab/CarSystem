@@ -204,46 +204,68 @@ def clear_all_data():
     conn.close()
     return redirect(url_for('management'))
 
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth radius in KM
+    phi1, phi2 = math.radians(float(lat1)), math.radians(float(lat2))
+    d_phi = math.radians(float(lat2) - float(lat1))
+    d_lambda = math.radians(float(lon2) - float(lon1))
+
+    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c
+
+def get_nearby_car_washes(lat, lon, radius=15000):  # radius in meters
+    overpass_url = "http://overpass-api.de/api/interpreter"
+    query = f"""
+    [out:json];
+    (
+      node["amenity"="car_wash"](around:{radius},{lat},{lon});
+      way["amenity"="car_wash"](around:{radius},{lat},{lon});
+      relation["amenity"="car_wash"](around:{radius},{lat},{lon});
+    );
+    out center;
+    """
+
+    response = requests.post(overpass_url, data=query)
+    results = []
+
+    if response.status_code == 200:
+        data = response.json()
+        for element in data['elements']:
+            name = element.get('tags', {}).get('name', 'Car Wash')
+            lat = element.get('lat') or element.get('center', {}).get('lat')
+            lon = element.get('lon') or element.get('center', {}).get('lon')
+            if lat and lon:
+                results.append({'name': name, 'latitude': lat, 'longitude': lon})
+    return results
+
 @app.route('/nearest_station')
 def get_nearest_stations():
     user_lat = request.args.get('lat')
     user_lon = request.args.get('lon')
 
-    # Handle missing coordinates
+    stations = []  # Initialize early so it's always defined
+
     if not user_lat or not user_lon:
-        return render_template("nearest_station.html", stations=[], error="Location not provided")
+        return render_template("nearest_station.html", stations=stations, error="Location not provided")
 
     try:
-        url = "https://nominatim.openstreetmap.org/search"
-        params = {
-            "format": "json",
-            "q": "car wash",
-            "lat": user_lat,
-            "lon": user_lon,
-            "limit": 10,
-            "addressdetails": 1
-        }
-        headers = {
-            "User-Agent": "CarWashSystem/1.0"
-        }
+        # Call Overpass API (or your function that fetches stations)
+        stations = get_nearby_car_washes(user_lat, user_lon)
 
-        response = requests.get(url, params=params, headers=headers)
+        # Calculate distance and add to each station
+        for station in stations:
+            station["distance_km"] = round(haversine(user_lat, user_lon, station["latitude"], station["longitude"]), 2)
 
-        stations = []
-        if response.status_code == 200:
-            data = response.json()
-            for result in data:
-                stations.append({
-                    "name": result.get("display_name"),
-                    "latitude": result.get("lat"),
-                    "longitude": result.get("lon")
-                })
+        # Sort by distance
+        stations.sort(key=lambda x: x["distance_km"])
 
         return render_template("nearest_station.html", stations=stations)
 
     except Exception as e:
-        print(f"Error fetching stations: {e}")
-        return render_template("nearest_station.html", stations=stations, error="Error retrieving data.")
+        print(f"Error: {e}")
+        return render_template("nearest_station.html", stations=stations, error="Error retrieving nearby stations.")
 
 # -------- Main --------
 if __name__ == '__main__':

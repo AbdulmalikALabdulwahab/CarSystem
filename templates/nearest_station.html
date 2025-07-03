@@ -147,7 +147,7 @@
 
       <div class="col-md-4 station-card">
         <div class="card shadow-sm h-100">
-          <img src="{{ map_url }}" alt="Map of {{ name }}" class="map-image"
+          <img src="{{ url_for('static', filename='gimage.png') }}" alt="Map of {{ name }}" class="map-image"
             onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200?text=Map+Unavailable';">
           <div class="card-body">
             <h5 class="card-title">{{ name }}</h5>
